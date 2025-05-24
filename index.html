@@ -11,13 +11,8 @@
                 var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
                 var firstSheetName = workbook.SheetNames[0];
                 var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
                 var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
                 var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
                 var headerRowIndex = filteredData.findIndex((row, index) =>
                   row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                 );
@@ -26,8 +21,7 @@
                   headerRowIndex = 0;
                 }
 
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
                 csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
                 return csv;
             } catch (e) {
@@ -56,7 +50,7 @@
       align-items: center;
       justify-content: center;
       background-color: #000000;
-      overflow: hidden; /* Prevent scrolling beyond content */
+      overflow: hidden;
     }
     #background-video {
       position: fixed;
@@ -67,6 +61,25 @@
       object-fit: cover;
       z-index: -1;
     }
+
+    .typewriter {
+      font-family: monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .cursor {
+      display: inline-block;
+      animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+
     .social-icon {
       pointer-events: none;
     }
@@ -84,7 +97,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      max-width: 300px; /* Prevent controls from stretching too wide */
+      max-width: 300px;
     }
     .social-icon {
       transition: transform 0.3s ease;
@@ -323,12 +336,18 @@
     <source src="assets/music.mp3" type="audio/mpeg"/>
     Your browser does not support the audio tag.
   </audio>
-<div class="content-container text-center text-white max-w-md mx-4">
+<div class="relative flex flex-col items-center">
+<div class="typewriter absolute -top-8 text-white text-lg font-medium text-center px-2 py-1 rounded-md bg-gray/50 backdrop-blur-sm">
+  <span id="typed-text"></span><span class="cursor">|</span>
+</div>
+<div class="content-container text-center text-white mx-4">
   <div class="transparent-bg">
     <img alt="Profile Image" class="profile-img mx-auto mb-4" src="assets/profile.jpg"/>
     <h1 class="text-3xl font-bold mb-2">Dylon Parsons</h1>
   <p class="text-lg mb-6">
-        blah blah blah, bunch words here. 
+        If I’m not studying or deploying some type of code, I’m probably climbing towers or no-scoping bugs in real life.
+Let’s team up—<br>whether it’s a project or a party.<br>I'm a full time Tower Technician, part-time college student, and a gamer at heart.<br>
+Feel free to connect on Discord, Steam or even follow my upcoming projects on GitHub —<br> always down to build something cool or squad up. 
         </p>
   <div class="flex justify-center gap-4">
     <a class="social-icon text-gray-300 hover:text-white text-shake" data-title="Join my Discord Server!" href="https://discord.gg/h3X7GjjKJr" target="_blank">
@@ -439,6 +458,40 @@
       muteBtn.classList.remove('fa-volume-up');
       muteBtn.classList.add('fa-volume-mute');
       }
+    });
+
+    const text = "🛠️ Developer • 🎮 Gamer • 💡 Problem Solver • 📶 Tower Technician";
+    const speed = 75;
+    const backSpeed = 40;
+    const delayBeforeStart = 5000;
+    const delayAfterTyping = 5000;
+
+    let index = 0;
+    let isDeleting = false;
+    const typedText = document.getElementById("typed-text");
+
+    function typeLoop() {
+      if (!isDeleting && index < text.length) {
+        typedText.textContent += text.charAt(index);
+        index++;
+        setTimeout(typeLoop, speed);
+      } else if (!isDeleting && index === text.length) {
+        setTimeout(() => {
+          isDeleting = true;
+          typeLoop();
+        }, delayAfterTyping);
+      } else if (isDeleting && index > 0) {
+        typedText.textContent = text.substring(0, index - 1);
+        index--;
+        setTimeout(typeLoop, backSpeed);
+      } else if (isDeleting && index === 0) {
+        isDeleting = false;
+        setTimeout(typeLoop, delayBeforeStart);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(typeLoop, delayBeforeStart);
     });
 
     portfolioBtn.addEventListener('click', (e) => {
